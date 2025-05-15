@@ -2,7 +2,13 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-    }
+
+        // Add the DriveQuant Maven repository
+        maven {
+            url = uri("https://maven.drivequant.com/repository/android-sdk/")
+        }
+
+    } 
 }
 
 val newBuildDir: Directory = rootProject.layout.buildDirectory.dir("../../build").get()

@@ -1,29 +1,44 @@
 package com.fairmatic.fairmatic_sdk_flutter
 
+import android.content.Context
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import com.fairmatic.sdk.Fairmatic  // Import the native Fairmatic SDK
 
 /** FairmaticSdkFlutterPlugin */
 class FairmaticSdkFlutterPlugin: FlutterPlugin, MethodCallHandler {
-  /// The MethodChannel that will the communication between Flutter and native Android
-  ///
-  /// This local reference serves to register the plugin with the Flutter Engine and unregister it
-  /// when the Flutter Engine is detached from the Activity
-  private lateinit var channel : MethodChannel
+  /// The MethodChannel that will handle the communication between Flutter and native Android
+  private lateinit var channel: MethodChannel
+  private lateinit var context: Context
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "fairmatic_sdk_flutter")
+    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "fairmatic")  // Change to match your Dart channel name
     channel.setMethodCallHandler(this)
+    context = flutterPluginBinding.applicationContext
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
-    if (call.method == "getPlatformVersion") {
-      result.success("Android ${android.os.Build.VERSION.RELEASE}")
-    } else {
-      result.notImplemented()
+    when (call.method) {
+      "getPlatformVersion" -> {
+        result.success("Android ${android.os.Build.VERSION.RELEASE}")
+      }
+      
+      "getBuildVersion" -> {
+        try {
+          // Call the Fairmatic SDK's getBuildVersion method
+          val buildVersion = Fairmatic.getBuildVersion()
+          result.success(buildVersion)
+        } catch (e: Exception) {
+          result.error("ERROR", "Failed to get build version: ${e.message}", null)
+        }
+      }
+      
+      else -> {
+        result.notImplemented()
+      }
     }
   }
 

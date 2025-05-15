@@ -9,7 +9,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:8.7.0")
+        classpath("com.android.tools.build:gradle:8.1.0")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
     }
 }
@@ -18,6 +18,13 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven {
+            url "https://storage.googleapis.com/download.flutter.io"
+        }
+        maven {
+            // Drive Quant Maven repository
+            url "https://maven.drivequant.com/repository/android-sdk/"
+        }
     }
 }
 
@@ -27,7 +34,7 @@ apply plugin: "kotlin-android"
 android {
     namespace = "com.fairmatic.fairmatic_sdk_flutter"
 
-    compileSdk = 35
+    compileSdk = 34
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -44,10 +51,26 @@ android {
     }
 
     defaultConfig {
-        minSdk = 21
+        minSdk = 26
     }
 
     dependencies {
+        // Add Kotlin stdlib
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    
+    // Add Flutter SDK
+         //implementation "io.flutter.embedding:flutter:1.0.0-release"
+    // implementation "io.flutter:flutter_embedding_debug:1.0.0-3316dd8728419ad3534e3f6112aa6291f587078a"
+
+    compileOnly 'io.flutter:flutter_embedding_debug:1.0.0-3316dd8728419ad3534e3f6112aa6291f587078a'
+    compileOnly 'io.flutter:flutter_embedding_release:1.0.0-3316dd8728419ad3534e3f6112aa6291f587078a'
+    compileOnly 'io.flutter:flutter_embedding_profile:1.0.0-3316dd8728419ad3534e3f6112aa6291f587078a'
+    
+     implementation "com.drivequant.drivekit:drivekit-trip-analysis:2.13.1"
+
+    //compileOnly rootProject.findProject(":flutter")
+    implementation 'com.fairmatic:sdk:3.0.2'
+
         testImplementation("org.jetbrains.kotlin:kotlin-test")
         testImplementation("org.mockito:mockito-core:5.0.0")
     }
@@ -62,5 +85,13 @@ android {
                showStandardStreams = true
             }
         }
+    }
+}
+
+configurations.all {
+    resolutionStrategy {
+        force "io.flutter:flutter_embedding_debug:1.0.0-cf56914b326edb0ccb123ffdc60f00060bd513fa"
+        force "io.flutter:flutter_embedding_release:1.0.0-cf56914b326edb0ccb123ffdc60f00060bd513fa"
+        force "io.flutter:flutter_embedding_profile:1.0.0-cf56914b326edb0ccb123ffdc60f00060bd513fa"
     }
 }

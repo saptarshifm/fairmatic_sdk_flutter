@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:fairmatic_sdk_flutter/fairmatic_sdk_flutter.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,48 +16,67 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-  final _fairmaticSdkFlutterPlugin = FairmaticSdkFlutter();
-
-  @override
-  void initState() {
-    super.initState();
-    initPlatformState();
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion =
-          await _fairmaticSdkFlutterPlugin.getPlatformVersion() ?? 'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
-  }
+  String _fairmaticVersion = 'Unknown';
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
+        appBar: AppBar(title: const Text('Fairmatic SDK Example')),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child:
+              _isLoading
+                  ? const CircularProgressIndicator()
+                  : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Fairmatic SDK Version:',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _fairmaticVersion,
+                        style: const TextStyle(fontSize: 24),
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: getFairmaticVersion,
+                        child: const Text('Refresh Version'),
+                      ),
+                    ],
+                  ),
         ),
       ),
     );
+  }
+
+  Future<void> getFairmaticVersion() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      String version = await Fairmatic.getBuildVersion();
+      setState(() {
+        _fairmaticVersion = version;
+        _isLoading = false;
+      });
+    } on PlatformException catch (e) {
+      setState(() {
+        _fairmaticVersion = 'Error: ${e.message}';
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getFairmaticVersion();
   }
 }
