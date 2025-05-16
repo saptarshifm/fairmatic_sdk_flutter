@@ -1,4 +1,5 @@
 // lib/src/fairmatic_method_channel.dart
+import 'package:fairmatic_sdk_flutter/classes/fairmatic_error_code.dart';
 import 'package:fairmatic_sdk_flutter/classes/fairmatic_setting_error.dart';
 import 'package:fairmatic_sdk_flutter/classes/fairmatic_trip_notification.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +9,16 @@ import 'classes/fairmatic_operation_callback.dart';
 import 'classes/fairmatic_operation_result.dart';
 import 'classes/fairmatic_settings_callback.dart';
 import 'fairmatic_platform_interface.dart';
+
+class FairmaticException implements Exception {
+  final FairmaticErrorCode code;
+  final String message;
+
+  FairmaticException({required this.code, required this.message});
+
+  @override
+  String toString() => 'FairmaticException($code): $message';
+}
 
 class FairmaticMethodChannel extends FairmaticPlatform {
   /// The method channel used to interact with the native platform.
@@ -86,25 +97,22 @@ class FairmaticMethodChannel extends FairmaticPlatform {
   Future<void> setup(
     FairmaticConfiguration configuration,
     FairmaticTripNotification tripNotification,
-    FairmaticOperationCallback operationCallback,
   ) async {
-    //   _operationCallback = operationCallback;
-
-    //   await _channel.invokeMethod('setup', {
-    //     'fairmaticConfiguration': configuration.toMap(),
-    //     'fairmaticTripNotification': tripNotification.toMap(),
-    //   });
-    // }
-
     final Map<String, dynamic> arguments = {
       'configuration': configuration.toMap(),
       'tripNotification': tripNotification.toMap(),
     };
 
-    // Debug: Print what's being sent
-    print("Sending to channel: $arguments");
-
-    await _channel.invokeMethod('setup', arguments);
+    try {
+      await _channel.invokeMethod('setup', arguments);
+    } on PlatformException catch (e) {
+      // Convert the string error code to an enum
+      final errorCode = mapErrorCodeFromString(e.code);
+      throw FairmaticException(
+        code: errorCode,
+        message: e.message ?? 'Unknown error during setup',
+      );
+    }
   }
 
   @override
@@ -113,8 +121,19 @@ class FairmaticMethodChannel extends FairmaticPlatform {
   }
 
   @override
-  Future<void> startDriveWithPeriod1() async {
-    await _channel.invokeMethod('startDriveWithPeriod1');
+  Future<void> startDriveWithPeriod1(String trackingId) async {
+    try {
+      await _channel.invokeMethod<void>('startDriveWithPeriod1', {
+        'trackingId': trackingId,
+      });
+    } on PlatformException catch (e) {
+      // Convert the string error code to an enum
+      final errorCode = mapErrorCodeFromString(e.code);
+      throw FairmaticException(
+        code: errorCode,
+        message: e.message ?? 'Unknown error starting drive',
+      );
+    }
   }
 
   @override
@@ -128,46 +147,27 @@ class FairmaticMethodChannel extends FairmaticPlatform {
   }
 
   @override
-  Future<void> startSession(String sessionId) async {
-    await _channel.invokeMethod('startSession', {'sessionId': sessionId});
-  }
-
-  @override
   Future<void> stopManualDrive() async {
     await _channel.invokeMethod('stopManualDrive');
   }
 
   @override
   Future<void> stopPeriod() async {
-    await _channel.invokeMethod('stopPeriod');
-  }
-
-  @override
-  Future<void> stopSession() async {
-    await _channel.invokeMethod('stopSession');
+    try {
+      await _channel.invokeMethod<void>('stopPeriod');
+    } on PlatformException catch (e) {
+      // Convert the string error code to an enum
+      final errorCode = mapErrorCodeFromString(e.code);
+      throw FairmaticException(
+        code: errorCode,
+        message: e.message ?? 'Unknown error stopping period',
+      );
+    }
   }
 
   @override
   Future<void> teardown() async {
     await _channel.invokeMethod('teardown');
-  }
-
-  @override
-  Future<void> triggerMockAccident({
-    required double confidence,
-    DateTime? timestamp,
-  }) async {
-    await _channel.invokeMethod('triggerMockAccident', {
-      'confidence': confidence,
-      'timestamp':
-          timestamp?.millisecondsSinceEpoch ??
-          DateTime.now().millisecondsSinceEpoch,
-    });
-  }
-
-  @override
-  Future<void> uploadAllDebugDataAndLogs() async {
-    await _channel.invokeMethod('uploadAllDebugDataAndLogs');
   }
 
   @override

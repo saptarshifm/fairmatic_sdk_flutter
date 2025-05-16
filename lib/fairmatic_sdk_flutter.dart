@@ -1,7 +1,6 @@
 import 'package:fairmatic_sdk_flutter/classes/fairmatic_trip_notification.dart';
 
 import 'classes/fairmatic_configuration.dart';
-import 'classes/fairmatic_operation_callback.dart';
 import 'classes/fairmatic_settings_callback.dart';
 import 'fairmatic_platform_interface.dart';
 
@@ -39,20 +38,15 @@ class Fairmatic {
   static Future<void> setup(
     FairmaticConfiguration configuration,
     FairmaticTripNotification tripNotification,
-    FairmaticOperationCallback operationCallback,
-  ) => FairmaticPlatform.instance.setup(
-    configuration,
-    tripNotification,
-    operationCallback,
-  );
+  ) => FairmaticPlatform.instance.setup(configuration, tripNotification);
 
   /// Starts a drive with the given tracking ID
   static Future<void> startDrive(String? trackingId) =>
       FairmaticPlatform.instance.startDrive(trackingId);
 
   /// Starts a drive with period 1
-  static Future<void> startDriveWithPeriod1() =>
-      FairmaticPlatform.instance.startDriveWithPeriod1();
+  static Future<void> startDriveWithPeriod1(String trackingId) =>
+      FairmaticPlatform.instance.startDriveWithPeriod1(trackingId);
 
   /// Starts a drive with period 2
   static Future<void> startDriveWithPeriod2(String? trackingId) =>

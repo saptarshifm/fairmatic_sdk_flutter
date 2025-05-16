@@ -14,11 +14,6 @@ import com.fairmatic.sdk.classes.FairmaticOperationCallback
 import com.fairmatic.sdk.classes.FairmaticOperationResult
 import com.fairmatic.sdk.classes.FairmaticTripNotification
 
-// import com.fairmatic.sdk.FairmaticConfiguration
-// import com.fairmatic.sdk.FairmaticTripNotification
-// import com.fairmatic.sdk.FairmaticOperationCallback
-// import com.fairmatic.sdk.FairmaticOperationResult
-
 /** FairmaticSdkFlutterPlugin */
 class FairmaticSdkFlutterPlugin: FlutterPlugin, MethodCallHandler {
   /// The MethodChannel that will handle the communication between Flutter and native Android
@@ -102,43 +97,42 @@ class FairmaticSdkFlutterPlugin: FlutterPlugin, MethodCallHandler {
           // Create trip notification
           val title = notificationMap["title"] as? String ?: "Trip in Progress"
           val content = notificationMap["content"] as? String ?: "Fairmatic is monitoring your trip"
-          val iconId = notificationMap["iconId"] as? Int ?: 0 // Default icon ID
+          // val iconId = notificationMap["iconId"] as? Int ?: 0 // Default icon ID
+
+          val iconName = "ic_notification"  // This is the PNG file you've added
+
+          // Get the resource ID for the icon
+          val iconId = context.resources.getIdentifier(iconName, "drawable", context.packageName)
+
+          // Fallback to system icon if not found
+          val finalIconId = if (iconId != 0) iconId else android.R.drawable.ic_dialog_info
+
           
           val tripNotification = FairmaticTripNotification(
             title,
             content,
-            iconId
+            finalIconId,
           )
           
           // Create operation callback
-          // Create operation callback
           val operationCallback = object : FairmaticOperationCallback {
             override fun onCompletion(operationResult: FairmaticOperationResult) {
-              // Create a map to pass back to Flutter
-              val resultMap = HashMap<String, Any?>()
-
-              when (operationResult) {
-                is FairmaticOperationResult.Success -> {
-                  resultMap["success"] = true
+                when (operationResult) {
+                    is FairmaticOperationResult.Success -> {
+                        // Complete with success
+                        result.success(true)  // or any success value you want to return
+                    }
+                    is FairmaticOperationResult.Failure -> {
+                        // Always use error for failures
+                        result.error(
+                            operationResult.error.name,
+                            operationResult.errorMessage,
+                            mapOf("errorType" to "OPERATION_FAILURE")
+                        )
+                    }
                 }
-                is FairmaticOperationResult.Failure -> {
-                  resultMap["success"] = false
-                  // Send the error code as an integer or string instead of the enum object
-                  resultMap["errorCode"] = operationResult.error.name  // Use name() for enum string name
-                  // or use ordinal for position in enum
-                  // resultMap["errorCode"] = operationResult.error.ordinal
-                  resultMap["errorMessage"] = operationResult.errorMessage
-                }
-              }
-
-              // Invoke the callback in Flutter
-              try {
-                channel.invokeMethod("onOperationCompleted", resultMap)
-              } catch (e: Exception) {
-                Log.e("FairmaticSdkFlutter", "Error sending operation result: ${e.message}")
-              }
             }
-          }
+        }
           
           // Setup the Fairmatic SDK
           Fairmatic.setup(
@@ -148,14 +142,101 @@ class FairmaticSdkFlutterPlugin: FlutterPlugin, MethodCallHandler {
             operationCallback
           )
           
-          // Return success immediately, actual result will come through the callback
-          result.success(null)
-          
         } catch (e: Exception) {
-          result.error("SETUP_ERROR", "Failed to setup Fairmatic SDK: ${e.message}", null)
+          result.error(
+            "SETUP_ERROR", 
+            "Failed to setup Fairmatic SDK: ${e.message}", 
+            mapOf("errorType" to "SETUP_EXCEPTION")
+        )
         }
       }
-      
+
+      "startDriveWithPeriod1" -> {
+    try {
+        // Extract the tracking ID parameter
+        val trackingId = call.argument<String>("trackingId")
+
+        if (trackingId == null) {
+            result.error("INVALID_ARGUMENT", "Tracking ID cannot be null", null)
+            return
+        }
+
+        Log.d("FairmaticSdkFlutter", "startDriveWithPeriod1 called with trackingId: $trackingId")
+        
+        // Create operation callback
+        val operationCallback = object : FairmaticOperationCallback {
+            override fun onCompletion(operationResult: FairmaticOperationResult) {
+                when (operationResult) {
+                    is FairmaticOperationResult.Success -> {
+                        Log.d("FairmaticSdkFlutter", "Drive started successfully with tracking ID: $trackingId")
+                        // Complete the Future with success
+                        result.success(null)  // or result.success(true) if you want to return a boolean
+                    }
+                    is FairmaticOperationResult.Failure -> {
+                        Log.d("FairmaticSdkFlutter", "Failed to start drive with tracking ID: $trackingId, Error: ${operationResult.errorMessage}")
+                        // Complete the Future with an error
+                        result.error(
+                            "FAIRMATIC_ERROR_${operationResult.error.name}", 
+                            operationResult.errorMessage, 
+                            mapOf(
+                                "errorCode" to operationResult.error.name,
+                                "errorType" to "OPERATION_FAILURE"
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
+        // Start the drive with period 1
+        Fairmatic.startDriveWithPeriod1(context, trackingId, operationCallback)
+        
+        // Note: We don't call result.success() here - it will be called in the callback
+    } catch (e: Exception) {
+        Log.e("FairmaticSdkFlutter", "Exception in startDriveWithPeriod1: ${e.message}")
+        result.error("START_DRIVE_ERROR", "Failed to start drive with period 1: ${e.message}", null)
+    }
+}
+
+      "stopPeriod" -> {
+    try {
+        Log.d("FairmaticSdkFlutter", "stopPeriod called")
+        
+        // Create operation callback
+        val operationCallback = object : FairmaticOperationCallback {
+            override fun onCompletion(operationResult: FairmaticOperationResult) {
+                when (operationResult) {
+                    is FairmaticOperationResult.Success -> {
+                        Log.d("FairmaticSdkFlutter", "Period stopped successfully")
+                        // Complete the Future with success
+                        result.success(null)  // or result.success(true) if you want to return a boolean
+                    }
+                    is FairmaticOperationResult.Failure -> {
+                        Log.d("FairmaticSdkFlutter", "Failed to stop period: ${operationResult.errorMessage}")
+                        // Complete the Future with an error
+                        result.error(
+                            "FAIRMATIC_ERROR_${operationResult.error.name}", 
+                            operationResult.errorMessage, 
+                            mapOf(
+                                "errorCode" to operationResult.error.name,
+                                "errorType" to "OPERATION_FAILURE"
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
+        // Stop the period
+        Fairmatic.stopPeriod(context, operationCallback)
+        
+        // Note: We don't call result.success() here - it will be called in the callback
+    } catch (e: Exception) {
+        Log.e("FairmaticSdkFlutter", "Exception in stopPeriod: ${e.message}")
+        result.error("STOP_PERIOD_ERROR", "Failed to stop period: ${e.message}", null)
+    }
+}
+
       else -> {
         result.notImplemented()
       }

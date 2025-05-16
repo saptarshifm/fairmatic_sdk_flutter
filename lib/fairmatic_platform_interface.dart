@@ -2,8 +2,6 @@ import 'package:fairmatic_sdk_flutter/classes/fairmatic_trip_notification.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'classes/fairmatic_configuration.dart';
-import 'classes/fairmatic_operation_callback.dart'
-    show FairmaticOperationCallback;
 import 'classes/fairmatic_settings_callback.dart';
 import 'fairmatic_method_channel.dart';
 
@@ -77,7 +75,6 @@ abstract class FairmaticPlatform extends PlatformInterface {
   Future<void> setup(
     FairmaticConfiguration configuration,
     FairmaticTripNotification tripNotification,
-    FairmaticOperationCallback operationCallback,
   ) {
     throw UnimplementedError('setup() has not been implemented.');
   }
@@ -88,7 +85,7 @@ abstract class FairmaticPlatform extends PlatformInterface {
   }
 
   /// Starts a drive with period 1
-  Future<void> startDriveWithPeriod1() {
+  Future<void> startDriveWithPeriod1(String trackingId) {
     throw UnimplementedError(
       'startDriveWithPeriod1() has not been implemented.',
     );

@@ -1,2 +1,24 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Permissions required by the Fairmatic SDK -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    
+    <application>
+        <!-- Notification channel configuration -->
+        <meta-data
+            android:name="com.fairmatic.sdk.notification_channel_id"
+            android:value="fairmatic_sdk_notification_channel" />
+        <meta-data
+            android:name="com.fairmatic.sdk.notification_channel_name"
+            android:value="Fairmatic SDK Notifications" />
+        <meta-data
+            android:name="com.fairmatic.sdk.notification_channel_description"
+            android:value="Notifications from Fairmatic SDK" />
+    </application>
 </manifest>
