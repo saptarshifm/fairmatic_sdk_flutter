@@ -88,12 +88,23 @@ class FairmaticMethodChannel extends FairmaticPlatform {
     FairmaticTripNotification tripNotification,
     FairmaticOperationCallback operationCallback,
   ) async {
-    _operationCallback = operationCallback;
+    //   _operationCallback = operationCallback;
 
-    await _channel.invokeMethod('setup', {
-      'fairmaticConfiguration': configuration.toMap(),
-      'fairmaticTripNotification': tripNotification.toMap(),
-    });
+    //   await _channel.invokeMethod('setup', {
+    //     'fairmaticConfiguration': configuration.toMap(),
+    //     'fairmaticTripNotification': tripNotification.toMap(),
+    //   });
+    // }
+
+    final Map<String, dynamic> arguments = {
+      'configuration': configuration.toMap(),
+      'tripNotification': tripNotification.toMap(),
+    };
+
+    // Debug: Print what's being sent
+    print("Sending to channel: $arguments");
+
+    await _channel.invokeMethod('setup', arguments);
   }
 
   @override
