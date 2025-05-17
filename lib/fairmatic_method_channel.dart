@@ -137,13 +137,35 @@ class FairmaticMethodChannel extends FairmaticPlatform {
   }
 
   @override
-  Future<void> startDriveWithPeriod2(String? trackingId) async {
-    await _channel.invokeMethod('startDriveWithPeriod2', trackingId);
+  Future<void> startDriveWithPeriod2(String trackingId) async {
+    try {
+      await _channel.invokeMethod<void>('startDriveWithPeriod2', {
+        'trackingId': trackingId,
+      });
+    } on PlatformException catch (e) {
+      // Convert the string error code to an enum
+      final errorCode = mapErrorCodeFromString(e.code);
+      throw FairmaticException(
+        code: errorCode,
+        message: e.message ?? 'Unknown error starting drive',
+      );
+    }
   }
 
   @override
-  Future<void> startDriveWithPeriod3(String? trackingId) async {
-    await _channel.invokeMethod('startDriveWithPeriod3', trackingId);
+  Future<void> startDriveWithPeriod3(String trackingId) async {
+    try {
+      await _channel.invokeMethod<void>('startDriveWithPeriod3', {
+        'trackingId': trackingId,
+      });
+    } on PlatformException catch (e) {
+      // Convert the string error code to an enum
+      final errorCode = mapErrorCodeFromString(e.code);
+      throw FairmaticException(
+        code: errorCode,
+        message: e.message ?? 'Unknown error starting drive',
+      );
+    }
   }
 
   @override

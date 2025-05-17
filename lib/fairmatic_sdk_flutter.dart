@@ -49,11 +49,11 @@ class Fairmatic {
       FairmaticPlatform.instance.startDriveWithPeriod1(trackingId);
 
   /// Starts a drive with period 2
-  static Future<void> startDriveWithPeriod2(String? trackingId) =>
+  static Future<void> startDriveWithPeriod2(String trackingId) =>
       FairmaticPlatform.instance.startDriveWithPeriod2(trackingId);
 
   /// Starts a drive with period 3
-  static Future<void> startDriveWithPeriod3(String? trackingId) =>
+  static Future<void> startDriveWithPeriod3(String trackingId) =>
       FairmaticPlatform.instance.startDriveWithPeriod3(trackingId);
 
   /// Starts a session with the given session ID

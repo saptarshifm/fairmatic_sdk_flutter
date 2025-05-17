@@ -92,14 +92,14 @@ abstract class FairmaticPlatform extends PlatformInterface {
   }
 
   /// Starts a drive with period 2
-  Future<void> startDriveWithPeriod2(String? trackingId) {
+  Future<void> startDriveWithPeriod2(String trackingId) {
     throw UnimplementedError(
       'startDriveWithPeriod2() has not been implemented.',
     );
   }
 
   /// Starts a drive with period 3
-  Future<void> startDriveWithPeriod3(String? trackingId) {
+  Future<void> startDriveWithPeriod3(String trackingId) {
     throw UnimplementedError(
       'startDriveWithPeriod3() has not been implemented.',
     );

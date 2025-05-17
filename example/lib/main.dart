@@ -28,8 +28,9 @@ class HomePageState extends State<HomePage> {
   bool _isInitialized = false;
   bool _isDriveActive = false;
 
-  final MethodChannel _methodChannel = const MethodChannel('fairmatic');
+  // final MethodChannel _methodChannel = const MethodChannel('fairmatic');
 
+  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -102,20 +103,63 @@ class HomePageState extends State<HomePage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed:
-                          _isInitialized && !_isDriveActive
-                              ? startDriveWithPeriod1
-                              : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            (!_isInitialized || _isDriveActive)
-                                ? Colors.grey
-                                : Colors.green,
-                      ),
-                      child: const Text('Start Drive (Period 1)'),
+
+                    // Period buttons section
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed:
+                                _isInitialized && !_isDriveActive
+                                    ? startDriveWithPeriod1
+                                    : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  (!_isInitialized || _isDriveActive)
+                                      ? Colors.grey
+                                      : Colors.green,
+                            ),
+                            child: const Text('Period 1'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed:
+                                _isInitialized && !_isDriveActive
+                                    ? startDriveWithPeriod2
+                                    : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  (!_isInitialized || _isDriveActive)
+                                      ? Colors.grey
+                                      : Colors.green,
+                            ),
+                            child: const Text('Period 2'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed:
+                                _isInitialized && !_isDriveActive
+                                    ? startDriveWithPeriod3
+                                    : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  (!_isInitialized || _isDriveActive)
+                                      ? Colors.grey
+                                      : Colors.green,
+                            ),
+                            child: const Text('Period 3'),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 12),
+
+                    const SizedBox(height: 16),
+
+                    // Stop period button
                     ElevatedButton(
                       onPressed:
                           _isInitialized && _isDriveActive ? stopPeriod : null,
@@ -127,6 +171,34 @@ class HomePageState extends State<HomePage> {
                       ),
                       child: const Text('Stop Period'),
                     ),
+
+                    // Additional visual indicator of active period
+                    if (_isDriveActive) ...[
+                      const SizedBox(height: 20),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.blue),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.directions_car, color: Colors.blue),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                _driveStatus,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -245,6 +317,102 @@ class HomePageState extends State<HomePage> {
       // If we get here, the start was successful
       setState(() {
         _driveStatus = 'Drive active (Period 1)';
+        _isDriveActive = true;
+        _isLoading = false;
+      });
+      _showSnackBar('Drive started successfully');
+    } on PlatformException catch (e) {
+      String errorMessage = e.message ?? 'Unknown error';
+      String errorCode = 'UNKNOWN';
+      String errorType = 'UNKNOWN';
+
+      if (e.details is Map<dynamic, dynamic>) {
+        final details = e.details as Map<dynamic, dynamic>;
+        errorCode = details['errorCode'] as String? ?? errorCode;
+        errorType = details['errorType'] as String? ?? errorType;
+      }
+
+      setState(() {
+        _driveStatus = 'Failed to start drive: $errorMessage';
+        _isDriveActive = false;
+        _isLoading = false;
+      });
+      _showSnackBar('Error starting drive: $errorMessage');
+    } catch (e) {
+      setState(() {
+        _driveStatus = 'Failed to start drive: $e';
+        _isDriveActive = false;
+        _isLoading = false;
+      });
+      _showSnackBar('Error starting drive: $e');
+    }
+  }
+
+  Future<void> startDriveWithPeriod2() async {
+    setState(() {
+      _isLoading = true;
+      _driveStatus = 'Starting drive...';
+    });
+
+    try {
+      // Generate a unique tracking ID
+      final trackingId = 'trip_${DateTime.now().millisecondsSinceEpoch}';
+
+      print("startig period 2 drive with tracking id : $trackingId");
+      // Start drive with period 1
+      await Fairmatic.startDriveWithPeriod2(trackingId);
+
+      // If we get here, the start was successful
+      setState(() {
+        _driveStatus = 'Drive active (Period 2)';
+        _isDriveActive = true;
+        _isLoading = false;
+      });
+      _showSnackBar('Drive started successfully');
+    } on PlatformException catch (e) {
+      String errorMessage = e.message ?? 'Unknown error';
+      String errorCode = 'UNKNOWN';
+      String errorType = 'UNKNOWN';
+
+      if (e.details is Map<dynamic, dynamic>) {
+        final details = e.details as Map<dynamic, dynamic>;
+        errorCode = details['errorCode'] as String? ?? errorCode;
+        errorType = details['errorType'] as String? ?? errorType;
+      }
+
+      setState(() {
+        _driveStatus = 'Failed to start drive: $errorMessage';
+        _isDriveActive = false;
+        _isLoading = false;
+      });
+      _showSnackBar('Error starting drive: $errorMessage');
+    } catch (e) {
+      setState(() {
+        _driveStatus = 'Failed to start drive: $e';
+        _isDriveActive = false;
+        _isLoading = false;
+      });
+      _showSnackBar('Error starting drive: $e');
+    }
+  }
+
+  Future<void> startDriveWithPeriod3() async {
+    setState(() {
+      _isLoading = true;
+      _driveStatus = 'Starting drive...';
+    });
+
+    try {
+      // Generate a unique tracking ID
+      final trackingId = 'trip_${DateTime.now().millisecondsSinceEpoch}';
+      print("startig period 3 drive with tracking id : $trackingId");
+
+      // Start drive with period 1
+      await Fairmatic.startDriveWithPeriod3(trackingId);
+
+      // If we get here, the start was successful
+      setState(() {
+        _driveStatus = 'Drive active (Period 3)';
         _isDriveActive = true;
         _isLoading = false;
       });
