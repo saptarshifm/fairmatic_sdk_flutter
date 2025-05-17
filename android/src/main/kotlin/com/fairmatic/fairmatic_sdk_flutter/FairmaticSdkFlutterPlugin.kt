@@ -16,6 +16,11 @@ import com.fairmatic.sdk.classes.FairmaticSettingError
 import com.fairmatic.sdk.classes.FairmaticSettingsCallback
 import com.fairmatic.sdk.classes.FairmaticTripNotification
 
+import com.fairmatic.fairmatic_sdk_flutter.FairmaticSdkFlutterUtils.createDriverAttributes
+import com.fairmatic.fairmatic_sdk_flutter.FairmaticSdkFlutterUtils.createTripNotification
+import com.fairmatic.fairmatic_sdk_flutter.FairmaticSdkFlutterUtils.createOperationCallback
+
+
 /** FairmaticSdkFlutterPlugin */
 class FairmaticSdkFlutterPlugin: FlutterPlugin, MethodCallHandler {
   /// The MethodChannel that will handle the communication between Flutter and native Android
@@ -122,7 +127,7 @@ class FairmaticSdkFlutterPlugin: FlutterPlugin, MethodCallHandler {
       )
       
       // Create trip notification
-      val tripNotification = createTripNotification(notificationMap)
+      val tripNotification = createTripNotification( notificationMap, context)
       
       // Create operation callback
       val operationCallback = createOperationCallback(result, "setup")
@@ -259,64 +264,6 @@ class FairmaticSdkFlutterPlugin: FlutterPlugin, MethodCallHandler {
     }
   }
 
-  private fun createDriverAttributes(attributesMap: Map<*, *>?): FairmaticDriverAttributes {
-    return if (attributesMap != null) {
-      FairmaticDriverAttributes(
-        firstName = attributesMap["firstName"] as? String ?: "",
-        lastName = attributesMap["lastName"] as? String ?: "",
-        email = attributesMap["email"] as? String,
-        phoneNumber = attributesMap["phoneNumber"] as? String
-      )
-    } else {
-      FairmaticDriverAttributes(
-        firstName = "",
-        lastName = ""
-      )
-    }
-  }
-
-  /**
-   * Creates a trip notification from a map
-   */
-  private fun createTripNotification(notificationMap: Map<String, Any>): FairmaticTripNotification {
-    val title = notificationMap["title"] as? String ?: "Trip in Progress"
-    val content = notificationMap["content"] as? String ?: "Fairmatic is monitoring your trip"
-
-    val iconName = "ic_notification"
-    val iconId = context.resources.getIdentifier(iconName, "drawable", context.packageName)
-    val finalIconId = if (iconId != 0) iconId else android.R.drawable.ic_dialog_info
-
-    return FairmaticTripNotification(
-      title,
-      content,
-      finalIconId
-    )
-  }
-
-  private fun createOperationCallback(result: Result, operation: String): FairmaticOperationCallback {
-    return object : FairmaticOperationCallback {
-      override fun onCompletion(operationResult: FairmaticOperationResult) {
-        when (operationResult) {
-          is FairmaticOperationResult.Success -> {
-            Log.d("FairmaticSdkFlutter", "$operation completed successfully")
-            result.success(null)
-          }
-          is FairmaticOperationResult.Failure -> {
-            Log.d("FairmaticSdkFlutter", "$operation failed: ${operationResult.errorMessage}")
-            result.error(
-              operationResult.error.name,
-              operationResult.errorMessage,
-              mapOf(
-                "errorCode" to operationResult.error.name,
-                "errorType" to "OPERATION_FAILURE"
-              )
-            )
-          }
-        }
-      }
-    }
-  }
-
   private fun handleGetFairmaticSettings(result: Result) {
     try {
       Log.d("FairmaticSdkFlutter", "getFairmaticSettings called")
@@ -347,8 +294,6 @@ class FairmaticSdkFlutterPlugin: FlutterPlugin, MethodCallHandler {
       )
     }
   }
-
-
 
   override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
     channel.setMethodCallHandler(null)
