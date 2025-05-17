@@ -98,7 +98,7 @@ class HomePageState extends State<HomePage> {
                     ElevatedButton(
                       onPressed: checkSettings,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.purple,
+                        backgroundColor: Colors.amber,
                       ),
                       child: const Text('Check Settings'),
                     ),
