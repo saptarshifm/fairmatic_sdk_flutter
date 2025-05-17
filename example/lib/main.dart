@@ -208,6 +208,15 @@ class HomePageState extends State<HomePage> {
                         ),
                       ),
                     ],
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: _isInitialized ? teardownSDK : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            _isInitialized ? Colors.deepOrange : Colors.grey,
+                      ),
+                      child: const Text('Tear Down SDK'),
+                    ),
                   ],
                 ),
               ),
@@ -563,6 +572,45 @@ class HomePageState extends State<HomePage> {
         _isLoading = false;
       });
       _showSnackBar('Error stopping period: $e');
+    }
+  }
+
+  Future<void> teardownSDK() async {
+    setState(() {
+      _isLoading = true;
+      _sdkStatus = 'Tearing down...';
+    });
+
+    try {
+      // Tear down the SDK
+      await Fairmatic.teardown();
+
+      // Update the state
+      setState(() {
+        _isInitialized = false;
+        _isDriveActive = false;
+        _sdkStatus = 'Not initialized';
+        _driveStatus = 'No active drive';
+        _isLoading = false;
+      });
+
+      _showSnackBar('Fairmatic SDK torn down successfully');
+    } on PlatformException catch (e) {
+      String errorMessage = e.message ?? 'Unknown error';
+
+      setState(() {
+        _sdkStatus = 'Failed to tear down: $errorMessage';
+        _isLoading = false;
+      });
+
+      _showSnackBar('Error tearing down SDK: $errorMessage');
+    } catch (e) {
+      setState(() {
+        _sdkStatus = 'Failed to tear down: $e';
+        _isLoading = false;
+      });
+
+      _showSnackBar('Error tearing down SDK: $e');
     }
   }
 

@@ -62,6 +62,10 @@ class FairmaticSdkFlutterPlugin: FlutterPlugin, MethodCallHandler {
         handleGetFairmaticSettings(result)
       }
 
+        "teardown" -> {
+            handleTeardown(result)
+        }
+
       else -> {
         result.notImplemented()
       }
@@ -141,11 +145,33 @@ class FairmaticSdkFlutterPlugin: FlutterPlugin, MethodCallHandler {
     }
   }
 
+  private fun handleTeardown(result: Result) {
+    try {
+      Log.d("FairmaticSdkFlutter", "teardown called")
+
+      // Create operation callback
+      val operationCallback = createOperationCallback(result, "teardown")
+
+      // Call Fairmatic teardown
+      Fairmatic.teardown(context, operationCallback)
+
+      // Note: We don't call result.success() here - it will be called in the callback
+    } catch (e: Exception) {
+      Log.e("FairmaticSdkFlutter", "Exception in teardown: ${e.message}")
+      result.error(
+        "TEARDOWN_ERROR",
+        "Failed to tear down Fairmatic SDK: ${e.message}",
+        null
+      )
+    }
+  }
+  
+
   private fun handleStartDriveWithPeriod1(call: MethodCall, result: Result) {
     try {
       // Extract the tracking ID parameter
       val trackingId = call.argument<String>("trackingId")
-        Log.d("FairmaticSdkFlutter", "startDriveWithPeriod1 called with trackingId: $trackingId")
+      Log.d("FairmaticSdkFlutter", "startDriveWithPeriod1 called with trackingId: $trackingId")
 
       if (trackingId == null) {
         result.error("INVALID_ARGUMENT", "Tracking ID cannot be null", null)
