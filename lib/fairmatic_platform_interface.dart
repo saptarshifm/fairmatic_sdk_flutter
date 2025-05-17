@@ -1,8 +1,8 @@
+import 'package:fairmatic_sdk_flutter/classes/fairmatic_setting_error.dart';
 import 'package:fairmatic_sdk_flutter/classes/fairmatic_trip_notification.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'classes/fairmatic_configuration.dart';
-import 'classes/fairmatic_settings_callback.dart';
 import 'fairmatic_method_channel.dart';
 
 abstract class FairmaticPlatform extends PlatformInterface {
@@ -42,9 +42,7 @@ abstract class FairmaticPlatform extends PlatformInterface {
   }
 
   /// Gets Fairmatic settings
-  Future<Map<String, dynamic>?> getFairmaticSettings(
-    FairmaticSettingsCallback settingsCallback,
-  ) {
+  Future<List<FairmaticSettingError>> getFairmaticSettings() {
     throw UnimplementedError(
       'getFairmaticSettings() has not been implemented.',
     );

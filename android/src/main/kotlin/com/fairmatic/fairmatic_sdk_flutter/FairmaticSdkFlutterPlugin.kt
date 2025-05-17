@@ -12,6 +12,8 @@ import com.fairmatic.sdk.classes.FairmaticConfiguration
 import com.fairmatic.sdk.classes.FairmaticDriverAttributes
 import com.fairmatic.sdk.classes.FairmaticOperationCallback
 import com.fairmatic.sdk.classes.FairmaticOperationResult
+import com.fairmatic.sdk.classes.FairmaticSettingError
+import com.fairmatic.sdk.classes.FairmaticSettingsCallback
 import com.fairmatic.sdk.classes.FairmaticTripNotification
 
 /** FairmaticSdkFlutterPlugin */
@@ -54,6 +56,10 @@ class FairmaticSdkFlutterPlugin: FlutterPlugin, MethodCallHandler {
 
       "stopPeriod" -> {
         handleStopPeriod(result)
+      }
+
+      "getFairmaticSettings" -> {
+        handleGetFairmaticSettings(result)
       }
 
       else -> {
@@ -285,9 +291,43 @@ class FairmaticSdkFlutterPlugin: FlutterPlugin, MethodCallHandler {
     }
   }
 
+  private fun handleGetFairmaticSettings(result: Result) {
+    try {
+      Log.d("FairmaticSdkFlutter", "getFairmaticSettings called")
+
+      // Create settings callback that completes the Flutter result
+      val settingsCallback = object : FairmaticSettingsCallback {
+        override fun onComplete(errors: List<FairmaticSettingError>) {
+          // Convert errors to a list of maps
+          val errorsList = errors.map { error ->
+            mapOf("type" to error.name)
+          }
+
+          // Complete the Flutter Future with the errors list directly
+          result.success(errorsList)
+        }
+      }
+
+      // Get Fairmatic settings
+      Fairmatic.getFairmaticSettings(context, settingsCallback)
+
+      // Note: We don't call result.success() here - it will be called in the callback
+    } catch (e: Exception) {
+      Log.e("FairmaticSdkFlutter", "Exception in getFairmaticSettings: ${e.message}")
+      result.error(
+        "SETTINGS_ERROR",
+        "Failed to get Fairmatic settings: ${e.message}",
+        null
+      )
+    }
+  }
+
+
+
   override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
     channel.setMethodCallHandler(null)
   }
+
 }
 
 

@@ -1,7 +1,7 @@
+import 'package:fairmatic_sdk_flutter/classes/fairmatic_setting_error.dart';
 import 'package:fairmatic_sdk_flutter/classes/fairmatic_trip_notification.dart';
 
 import 'classes/fairmatic_configuration.dart';
-import 'classes/fairmatic_settings_callback.dart';
 import 'fairmatic_platform_interface.dart';
 
 class Fairmatic {
@@ -18,9 +18,8 @@ class Fairmatic {
       FairmaticPlatform.instance.getEventSupportForDevice();
 
   /// Gets Fairmatic settings
-  static Future<Map<String, dynamic>?> getFairmaticSettings(
-    FairmaticSettingsCallback settingsCallback,
-  ) => FairmaticPlatform.instance.getFairmaticSettings(settingsCallback);
+  static Future<List<FairmaticSettingError>> getFairmaticSettings() =>
+      FairmaticPlatform.instance.getFairmaticSettings();
 
   /// Checks if accident detection is supported
   static Future<bool> isAccidentDetectionSupported() =>

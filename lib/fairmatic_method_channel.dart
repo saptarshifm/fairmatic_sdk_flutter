@@ -58,15 +58,16 @@ class FairmaticMethodChannel extends FairmaticPlatform {
   }
 
   @override
-  Future<Map<String, dynamic>?> getFairmaticSettings(
-    FairmaticSettingsCallback settingsCallback,
-  ) async {
-    _settingsCallback = settingsCallback;
-
-    final Map<dynamic, dynamic>? settings = await _channel.invokeMethod(
+  Future<List<FairmaticSettingError>> getFairmaticSettings() async {
+    final List<dynamic> response = await _channel.invokeMethod(
       'getFairmaticSettings',
     );
-    return settings?.cast<String, dynamic>();
+
+    // Convert the list of maps to a list of FairmaticSettingError objects
+    return response.map((item) {
+      final Map<dynamic, dynamic> errorMap = item as Map<dynamic, dynamic>;
+      return FairmaticSettingError.fromMap(errorMap);
+    }).toList();
   }
 
   @override

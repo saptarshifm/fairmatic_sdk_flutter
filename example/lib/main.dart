@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:fairmatic_sdk_flutter/classes/fairmatic_configuration.dart';
 import 'package:fairmatic_sdk_flutter/classes/fairmatic_driver_attributes.dart';
 import 'package:fairmatic_sdk_flutter/classes/fairmatic_error_code.dart';
+import 'package:fairmatic_sdk_flutter/classes/fairmatic_setting_error.dart';
+import 'package:fairmatic_sdk_flutter/classes/fairmatic_settings_callback.dart';
 import 'package:fairmatic_sdk_flutter/classes/fairmatic_trip_notification.dart';
 import 'package:fairmatic_sdk_flutter/fairmatic_method_channel.dart';
 import 'package:fairmatic_sdk_flutter/fairmatic_sdk_flutter.dart';
@@ -93,6 +95,13 @@ class HomePageState extends State<HomePage> {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: checkSettings,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.purple,
+                      ),
+                      child: const Text('Check Settings'),
+                    ),
                     Divider(),
                     const SizedBox(height: 16),
                     const Text(
@@ -203,6 +212,77 @@ class HomePageState extends State<HomePage> {
                 ),
               ),
     );
+  }
+
+  Future<void> checkSettings() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Get settings directly without callback
+      final List<FairmaticSettingError> errors =
+          await Fairmatic.getFairmaticSettings();
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (errors.isEmpty) {
+        _showSnackBar('No settings issues found');
+      } else {
+        // Create a formatted message of all errors
+        final errorMessages = errors
+            .map((error) {
+              switch (error.type) {
+                case FairmaticSettingErrorType.locationPermissionDenied:
+                  return '• Location permission is denied';
+                case FairmaticSettingErrorType
+                    .activityRecognitionPermissionDenied:
+                  return '• Activity recognition permission is denied';
+                case FairmaticSettingErrorType.preciseLocationDenied:
+                  return '• Precise location is denied';
+                case FairmaticSettingErrorType.locationModeHighAccuracyDenied:
+                  return '• High accuracy location mode is disabled';
+                case FairmaticSettingErrorType.backgroundRestrictionEnabled:
+                  return '• Background restrictions are enabled';
+                case FairmaticSettingErrorType.batteryOptimizationEnabled:
+                  return '• Battery optimization is enabled';
+                case FairmaticSettingErrorType.notificationsDisabled:
+                  return '• Notifications are disabled';
+                case FairmaticSettingErrorType.googlePlayServicesVersionError:
+                  return '• Google Play Services needs updating';
+                case FairmaticSettingErrorType.internalError:
+                default:
+                  return '• Internal error';
+              }
+            })
+            .join('\n');
+
+        // Show a dialog with all errors
+        showDialog(
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                title: Text('Settings Issues Found'),
+                content: Text(
+                  'The following issues need to be resolved for optimal trip detection:\n\n$errorMessages',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('OK'),
+                  ),
+                ],
+              ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      _showSnackBar('Error checking settings: $e');
+    }
   }
 
   Future<void> getFairmaticVersion() async {
@@ -596,6 +676,17 @@ class MyApp extends StatelessWidget {
 
   // @override
   // State<MyApp> createState() => _MyAppState();
+}
+
+class MySettingsCallback implements FairmaticSettingsCallback {
+  final Function(List<FairmaticSettingError>?) onCompleteHandler;
+
+  MySettingsCallback({required this.onCompleteHandler});
+
+  @override
+  void onComplete(List<FairmaticSettingError>? errors) {
+    onCompleteHandler(errors);
+  }
 }
 
 // // Concrete implementation of FairmaticOperationCallback
