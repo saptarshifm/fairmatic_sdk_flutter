@@ -53,11 +53,11 @@ class FairmaticSdkFlutterPlugin: FlutterPlugin, MethodCallHandler {
 
       "startDriveWithPeriod2" -> {
       handleStartDriveWithPeriod2(call, result)
-    }
+      }
 
-    "startDriveWithPeriod3" -> {
-      handleStartDriveWithPeriod3(call, result)
-    }
+      "startDriveWithPeriod3" -> {
+        handleStartDriveWithPeriod3(call, result)
+      }
 
       "stopPeriod" -> {
         handleStopPeriod(result)
@@ -67,9 +67,13 @@ class FairmaticSdkFlutterPlugin: FlutterPlugin, MethodCallHandler {
         handleGetFairmaticSettings(result)
       }
 
-        "teardown" -> {
-            handleTeardown(result)
-        }
+      "teardown" -> {
+          handleTeardown(result)
+      }
+
+      "wipeOut" -> {
+        handleWipeOut(result)
+      }
 
       else -> {
         result.notImplemented()
@@ -166,6 +170,27 @@ class FairmaticSdkFlutterPlugin: FlutterPlugin, MethodCallHandler {
       result.error(
         "TEARDOWN_ERROR",
         "Failed to tear down Fairmatic SDK: ${e.message}",
+        null
+      )
+    }
+  }
+
+  private fun handleWipeOut(result: Result) {
+    try {
+      Log.d("FairmaticSdkFlutter", "Wipeout called")
+
+      // Create operation callback
+      val operationCallback = createOperationCallback(result, "wipeout")
+
+      // Call Fairmatic wipeout
+      Fairmatic.wipeOut(context, operationCallback)
+
+      // Note: We don't call result.success() here - it will be called in the callback
+    } catch (e: Exception) {
+      Log.e("FairmaticSdkFlutter", "Exception in wipeout: ${e.message}")
+      result.error(
+        "WIPEOUT_ERROR",
+        "Failed to wipe out Fairmatic SDK: ${e.message}",
         null
       )
     }
