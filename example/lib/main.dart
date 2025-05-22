@@ -645,97 +645,6 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  /*
-  void _setupMethodChannelHandler() {
-    _methodChannel.setMethodCallHandler((call) async {
-      if (call.method == 'onOperationCompleted') {
-        final arguments = call.arguments as Map<dynamic, dynamic>;
-        final success = arguments['success'] as bool;
-        final operation = arguments['operation'] as String?;
-
-        print("Operation completed: $operation, success: $success");
-
-        if (success) {
-          switch (operation) {
-            case 'setup':
-              setState(() {
-                _sdkStatus = 'Initialized successfully';
-                _isInitialized = true;
-                _isLoading = false;
-              });
-              _showSnackBar('Fairmatic SDK initialized successfully');
-              break;
-
-            case 'startDriveWithPeriod1':
-              setState(() {
-                _driveStatus = 'Drive active (Period 1)';
-                _isDriveActive = true;
-                _isLoading = false;
-              });
-              _showSnackBar('Drive started successfully');
-              break;
-
-            case 'stopPeriod':
-              setState(() {
-                _driveStatus = 'No active drive';
-                _isDriveActive = false;
-                _isLoading = false;
-              });
-              _showSnackBar('Period stopped successfully');
-              break;
-
-            default:
-              setState(() {
-                _isLoading = false;
-              });
-              if (operation != null) {
-                _showSnackBar('$operation completed successfully');
-              }
-          }
-        } else {
-          final errorMessage = arguments['errorMessage'] as String?;
-
-          switch (operation) {
-            case 'setup':
-              setState(() {
-                _sdkStatus = 'Initialization error: $errorMessage';
-                _isInitialized = false;
-                _isLoading = false;
-              });
-              _showSnackBar('Initialization error: $errorMessage');
-              break;
-
-            case 'startDriveWithPeriod1':
-              setState(() {
-                _driveStatus = 'Failed to start drive: $errorMessage';
-                _isDriveActive = false;
-                _isLoading = false;
-              });
-              _showSnackBar('Failed to start drive: $errorMessage');
-              break;
-
-            case 'stopPeriod':
-              setState(() {
-                _driveStatus = 'Failed to stop period: $errorMessage';
-                _isLoading = false;
-              });
-              _showSnackBar('Failed to stop period: $errorMessage');
-              break;
-
-            default:
-              setState(() {
-                _isLoading = false;
-              });
-              if (operation != null) {
-                _showSnackBar('$operation failed: $errorMessage');
-              }
-          }
-        }
-      }
-      return null;
-    });
-  }*/
-
   void _showSnackBar(String message) {
     if (context.mounted) {
       ScaffoldMessenger.of(
@@ -752,9 +661,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(home: const HomePage());
   }
-
-  // @override
-  // State<MyApp> createState() => _MyAppState();
 }
 
 class MySettingsCallback implements FairmaticSettingsCallback {
@@ -767,15 +673,3 @@ class MySettingsCallback implements FairmaticSettingsCallback {
     onCompleteHandler(errors);
   }
 }
-
-// // Concrete implementation of FairmaticOperationCallback
-// class SimpleOperationCallback implements FairmaticOperationCallback {
-//   final Function(FairmaticOperationResult) onCompletionHandler;
-
-//   SimpleOperationCallback({required this.onCompletionHandler});
-
-//   @override
-//   void onCompletion(FairmaticOperationResult result) {
-//     onCompletionHandler(result);
-//   }
-// }
