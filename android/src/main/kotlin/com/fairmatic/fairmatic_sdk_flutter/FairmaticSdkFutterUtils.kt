@@ -66,10 +66,7 @@ object FairmaticSdkFlutterUtils {
                         result.error(
                             operationResult.error.name,
                             operationResult.errorMessage,
-                            mapOf(
-                                "errorCode" to operationResult.error.name,
-                                "errorType" to "OPERATION_FAILURE"
-                            )
+                            null
                         )
                     }
                 }

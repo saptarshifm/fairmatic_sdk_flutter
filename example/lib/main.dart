@@ -135,12 +135,12 @@ class HomePageState extends State<HomePage> {
                         Expanded(
                           child: ElevatedButton(
                             onPressed:
-                                _isInitialized && !_isDriveActive
+                                !_isInitialized && !_isDriveActive
                                     ? startDriveWithPeriod2
                                     : null,
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
-                                  (!_isInitialized || _isDriveActive)
+                                  (_isInitialized || _isDriveActive)
                                       ? Colors.grey
                                       : Colors.green,
                             ),
@@ -324,8 +324,8 @@ class HomePageState extends State<HomePage> {
         firstName: "Sachin",
         lastName: "Tendulkar",
       );
+
       // Create a configuration with required parameters
-      // Replace 'YOUR_SDK_KEY' with your actual Fairmatic SDK key
       final configuration = FairmaticConfiguration(
         sdkKey: 'UXBDuLRFg6k2YT3oys2T9njD8BEzAoA1',
         driverId: '35b73e53-898e-4107-aae3-9874743fbf70',
@@ -339,7 +339,7 @@ class HomePageState extends State<HomePage> {
         iconId: 1,
       );
 
-      print(configuration.toMap());
+      print("Configuration: ${configuration.toMap()}");
 
       // Initialize the SDK
       await Fairmatic.setup(configuration, tripNotification);
@@ -360,18 +360,23 @@ class HomePageState extends State<HomePage> {
       });
       _showSnackBar('Initialization error: ${e.message}');
 
-      // You can also switch on the error code for specific handling
+      // Handle specific error codes
       switch (e.code) {
         case FairmaticErrorCode.networkNotAvailable:
-          // Special handling for network errors
           _showSnackBar('Please check your internet connection');
           break;
         case FairmaticErrorCode.invalidDriverId:
-          // Special handling for invalid driver ID
+          _showSnackBar('The driver ID provided is invalid');
           break;
-        // Handle other specific cases
+        case FairmaticErrorCode.sdkKeyNotFound:
+          _showSnackBar('Invalid SDK key');
+          break;
+        case FairmaticErrorCode.invalidDriverName:
+          _showSnackBar('The driver name is invalid');
+          break;
         default:
-        // Default error handling
+          // Already handled in general error message
+          break;
       }
     } catch (e) {
       // Other unexpected errors
@@ -410,23 +415,27 @@ class HomePageState extends State<HomePage> {
         _isLoading = false;
       });
       _showSnackBar('Drive started successfully');
-    } on PlatformException catch (e) {
-      String errorMessage = e.message ?? 'Unknown error';
-      String errorCode = 'UNKNOWN';
-      String errorType = 'UNKNOWN';
-
-      if (e.details is Map<dynamic, dynamic>) {
-        final details = e.details as Map<dynamic, dynamic>;
-        errorCode = details['errorCode'] as String? ?? errorCode;
-        errorType = details['errorType'] as String? ?? errorType;
-      }
-
+    } on FairmaticException catch (e) {
       setState(() {
-        _driveStatus = 'Failed to start drive: $errorMessage';
+        _driveStatus = 'Failed to start drive: ${e.message}';
         _isDriveActive = false;
         _isLoading = false;
       });
-      _showSnackBar('Error starting drive: $errorMessage');
+      _showSnackBar('Error starting drive: ${e.message}');
+
+      // Optional: Handle specific error codes
+      switch (e.code) {
+        case FairmaticErrorCode.networkNotAvailable:
+          _showSnackBar('Check your network connection');
+          break;
+        case FairmaticErrorCode.sdkNotSetup:
+          _showSnackBar('SDK not initialized.');
+          break;
+        // Other specific cases...
+        default:
+          // Already handled above
+          break;
+      }
     } catch (e) {
       setState(() {
         _driveStatus = 'Failed to start drive: $e';
@@ -447,8 +456,9 @@ class HomePageState extends State<HomePage> {
       // Generate a unique tracking ID
       final trackingId = 'trip_${DateTime.now().millisecondsSinceEpoch}';
 
-      print("startig period 2 drive with tracking id : $trackingId");
-      // Start drive with period 1
+      print("Starting period 2 drive with tracking ID: $trackingId");
+
+      // Start drive with period 2
       await Fairmatic.startDriveWithPeriod2(trackingId);
 
       // If we get here, the start was successful
@@ -458,23 +468,29 @@ class HomePageState extends State<HomePage> {
         _isLoading = false;
       });
       _showSnackBar('Drive started successfully');
-    } on PlatformException catch (e) {
-      String errorMessage = e.message ?? 'Unknown error';
-      String errorCode = 'UNKNOWN';
-      String errorType = 'UNKNOWN';
-
-      if (e.details is Map<dynamic, dynamic>) {
-        final details = e.details as Map<dynamic, dynamic>;
-        errorCode = details['errorCode'] as String? ?? errorCode;
-        errorType = details['errorType'] as String? ?? errorType;
-      }
-
+    } on FairmaticException catch (e) {
       setState(() {
-        _driveStatus = 'Failed to start drive: $errorMessage';
+        _driveStatus = 'Failed to start drive: ${e.message}';
         _isDriveActive = false;
         _isLoading = false;
       });
-      _showSnackBar('Error starting drive: $errorMessage');
+      _showSnackBar('Error starting drive: ${e.message}');
+
+      // Handle specific error codes
+      switch (e.code) {
+        case FairmaticErrorCode.networkNotAvailable:
+          _showSnackBar('Check your network connection');
+          break;
+        case FairmaticErrorCode.sdkNotSetup:
+          _showSnackBar('SDK not initialized properly');
+          break;
+        case FairmaticErrorCode.invalidTrackingId:
+          _showSnackBar('Invalid tracking ID format');
+          break;
+        default:
+          // Already handled in general error message
+          break;
+      }
     } catch (e) {
       setState(() {
         _driveStatus = 'Failed to start drive: $e';
@@ -494,9 +510,10 @@ class HomePageState extends State<HomePage> {
     try {
       // Generate a unique tracking ID
       final trackingId = 'trip_${DateTime.now().millisecondsSinceEpoch}';
-      print("startig period 3 drive with tracking id : $trackingId");
 
-      // Start drive with period 1
+      print("Starting period 3 drive with tracking ID: $trackingId");
+
+      // Start drive with period 3
       await Fairmatic.startDriveWithPeriod3(trackingId);
 
       // If we get here, the start was successful
@@ -506,23 +523,29 @@ class HomePageState extends State<HomePage> {
         _isLoading = false;
       });
       _showSnackBar('Drive started successfully');
-    } on PlatformException catch (e) {
-      String errorMessage = e.message ?? 'Unknown error';
-      String errorCode = 'UNKNOWN';
-      String errorType = 'UNKNOWN';
-
-      if (e.details is Map<dynamic, dynamic>) {
-        final details = e.details as Map<dynamic, dynamic>;
-        errorCode = details['errorCode'] as String? ?? errorCode;
-        errorType = details['errorType'] as String? ?? errorType;
-      }
-
+    } on FairmaticException catch (e) {
       setState(() {
-        _driveStatus = 'Failed to start drive: $errorMessage';
+        _driveStatus = 'Failed to start drive: ${e.message}';
         _isDriveActive = false;
         _isLoading = false;
       });
-      _showSnackBar('Error starting drive: $errorMessage');
+      _showSnackBar('Error starting drive: ${e.message}');
+
+      // Handle specific error codes
+      switch (e.code) {
+        case FairmaticErrorCode.networkNotAvailable:
+          _showSnackBar('Check your network connection');
+          break;
+        case FairmaticErrorCode.sdkNotSetup:
+          _showSnackBar('SDK not initialized properly');
+          break;
+        case FairmaticErrorCode.invalidTrackingId:
+          _showSnackBar('Invalid tracking ID format');
+          break;
+        default:
+          // Already handled in general error message
+          break;
+      }
     } catch (e) {
       setState(() {
         _driveStatus = 'Failed to start drive: $e';
@@ -550,22 +573,23 @@ class HomePageState extends State<HomePage> {
         _isLoading = false;
       });
       _showSnackBar('Period stopped successfully');
-    } on PlatformException catch (e) {
-      String errorMessage = e.message ?? 'Unknown error';
-      String errorCode = 'UNKNOWN';
-      String errorType = 'UNKNOWN';
-
-      if (e.details is Map<dynamic, dynamic>) {
-        final details = e.details as Map<dynamic, dynamic>;
-        errorCode = details['errorCode'] as String? ?? errorCode;
-        errorType = details['errorType'] as String? ?? errorType;
-      }
-
+    } on FairmaticException catch (e) {
       setState(() {
-        _driveStatus = 'Failed to stop period: $errorMessage';
+        _driveStatus = 'Failed to stop period: ${e.message}';
         _isLoading = false;
       });
-      _showSnackBar('Error stopping period: $errorMessage');
+      _showSnackBar('Error stopping period: ${e.message}');
+
+      // Handle specific error codes
+      switch (e.code) {
+        case FairmaticErrorCode.sdkNotSetup:
+          _showSnackBar('SDK not initialized properly');
+          break;
+        // Add other relevant error cases
+        default:
+          // Already handled in general error message
+          break;
+      }
     } catch (e) {
       setState(() {
         _driveStatus = 'Failed to stop period: $e';
@@ -595,21 +619,28 @@ class HomePageState extends State<HomePage> {
       });
 
       _showSnackBar('Fairmatic SDK torn down successfully');
-    } on PlatformException catch (e) {
-      String errorMessage = e.message ?? 'Unknown error';
-
+    } on FairmaticException catch (e) {
       setState(() {
-        _sdkStatus = 'Failed to tear down: $errorMessage';
+        _sdkStatus = 'Failed to tear down: ${e.message}';
         _isLoading = false;
       });
+      _showSnackBar('Error tearing down SDK: ${e.message}');
 
-      _showSnackBar('Error tearing down SDK: $errorMessage');
+      // Handle specific error codes
+      switch (e.code) {
+        case FairmaticErrorCode.sdkNotSetup:
+          _showSnackBar('SDK was not properly initialized');
+          break;
+        // Add other relevant error cases
+        default:
+          // Already handled in general error message
+          break;
+      }
     } catch (e) {
       setState(() {
         _sdkStatus = 'Failed to tear down: $e';
         _isLoading = false;
       });
-
       _showSnackBar('Error tearing down SDK: $e');
     }
   }

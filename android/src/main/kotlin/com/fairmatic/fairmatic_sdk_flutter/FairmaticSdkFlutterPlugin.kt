@@ -225,19 +225,13 @@ class FairmaticSdkFlutterPlugin: FlutterPlugin, MethodCallHandler {
   private fun handleStartDriveWithPeriod2(call: MethodCall, result: Result) {
     try {
       // Extract the tracking ID parameter
-      Log.d("FairmaticSdkFlutter", "startDriveWithPeriod2 called")
       val trackingId = call.argument<String>("trackingId")
-      Log.d("FairmaticSdkFlutter", "startDriveWithPeriod2 called with trackingId: $trackingId")
-
   
       if (trackingId == null) {
         result.error("INVALID_ARGUMENT", "Tracking ID cannot be null", "Tracking Id null")
         return
       }
-  
-      Log.d("FairmaticSdkFlutter", "startDriveWithPeriod2 called with trackingId: $trackingId")
-      
-      // Create operation callback
+
       val operationCallback = createOperationCallback(result, "startDriveWithPeriod2")
   
       // Start the drive with period 2

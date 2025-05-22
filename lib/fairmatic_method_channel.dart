@@ -107,7 +107,6 @@ class FairmaticMethodChannel extends FairmaticPlatform {
     try {
       await _channel.invokeMethod('setup', arguments);
     } on PlatformException catch (e) {
-      // Convert the string error code to an enum
       final errorCode = mapErrorCodeFromString(e.code);
       throw FairmaticException(
         code: errorCode,

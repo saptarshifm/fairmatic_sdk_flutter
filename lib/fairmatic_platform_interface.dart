@@ -24,11 +24,6 @@ abstract class FairmaticPlatform extends PlatformInterface {
   /// Constructs a FairmaticPlatform.
   FairmaticPlatform() : super(token: _token);
 
-  /// Gets active drive information
-  Future<Map<String, dynamic>?> getActiveDriveInfo() {
-    throw UnimplementedError('getActiveDriveInfo() has not been implemented.');
-  }
-
   /// Gets the SDK build version
   Future<String> getBuildVersion() {
     throw UnimplementedError('getBuildVersion() has not been implemented.');
